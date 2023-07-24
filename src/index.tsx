@@ -1,10 +1,30 @@
 import ReactDOM from "react-dom/client";
-import "./index.scss";
+import "./styles/index.scss";
 import reportWebVitals from "./reportWebVitals";
 import RootRouter from "./views/RootRouter";
+import { configureStore } from "@reduxjs/toolkit";
+import RootReducer from "./store/RootReducer";
+import { PersistGate } from "redux-persist/integration/react";
+import { Provider } from "react-redux";
+import { persistStore } from "redux-persist";
+
+const store = configureStore({
+  reducer: RootReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
+});
+const persistor = persistStore(store);
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
-root.render(<RootRouter />);
+root.render(
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
+      <RootRouter />
+    </PersistGate>
+  </Provider>
+);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
