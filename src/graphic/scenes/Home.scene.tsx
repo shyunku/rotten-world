@@ -2,18 +2,23 @@ import Text2D from "../atom/Text2D";
 import Button2D from "../atom/Button2D";
 import { useContext } from "react";
 import { RouteContext } from "../main/World";
+import Logger from "../engine/Logger";
 
 const HomeScene = () => {
-  const { setGameMode, setUrl } = useContext<any>(RouteContext.Consumer);
+  const { setGameMode, setUrl } = useContext<any>(RouteContext);
 
   const onSinglePlayStart = () => {
     console.log("singleplay start.");
     setGameMode("singleplay");
+    setUrl("game");
+    Logger.debug("singleplay start.");
   };
 
   const onMultiPlayStart = () => {
     console.log("multiplay start.");
     setGameMode("multiplay");
+    setUrl("game");
+    Logger.debug("multiplay start.");
   };
 
   return (
