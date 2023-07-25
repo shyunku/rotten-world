@@ -1,9 +1,31 @@
 import { Canvas } from "@react-three/fiber";
-import { Suspense } from "react";
+import { Suspense, useMemo, useState } from "react";
 import HomeScene from "../scenes/Home.scene";
 import { NoToneMapping } from "three";
+import GameScene from "../scenes/Game.scene";
+import { createContext } from "vm";
+
+export const RouteContext = createContext({
+  url: "",
+  setUrl: (url: string) => {},
+  gameMode: "",
+  setGameMode: (gameMode: string) => {},
+});
 
 const World = () => {
+  const [url, setUrl] = useState<string>("home");
+  const [gameMode, setGameMode] = useState<string | null>(null);
+
+  const routeCtx: object = useMemo(
+    () => ({
+      url,
+      setUrl,
+      gameMode,
+      setGameMode,
+    }),
+    [url, gameMode]
+  );
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <Canvas
@@ -17,7 +39,14 @@ const World = () => {
         orthographic={true}
         gl={{ antialias: true, toneMapping: NoToneMapping }}
       >
-        <HomeScene />
+        <RouteContext.Provider value={routeCtx}>
+          {
+            {
+              home: <HomeScene />,
+              game: <GameScene />,
+            }[url || "home"]
+          }
+        </RouteContext.Provider>
       </Canvas>
     </Suspense>
   );

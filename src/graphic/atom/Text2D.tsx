@@ -7,6 +7,8 @@ export interface TextProps {
   text: string;
   color?: string;
   fontSize?: number;
+  textAlignHorizontal?: "left" | "center" | "right";
+  textAlignVertical?: "top" | "middle" | "bottom";
 }
 
 const Text2D = (props: TextProps & ConstraintProps) => {
@@ -30,7 +32,13 @@ const Text2D = (props: TextProps & ConstraintProps) => {
 
   const position: [number, number, number] = [x, y, props.z || 0];
   return (
-    <Text position={position} fontSize={props.fontSize || 15} color={props.color || "black"}>
+    <Text
+      position={position}
+      fontSize={props.fontSize || 15}
+      color={props.color || "black"}
+      anchorX={props.textAlignHorizontal || "center"}
+      anchorY={props.textAlignVertical || "middle"}
+    >
       {props.text}
     </Text>
   );

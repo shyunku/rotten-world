@@ -1,10 +1,21 @@
-import { Text } from "@react-three/drei";
-import { useThree } from "@react-three/fiber";
 import Text2D from "../atom/Text2D";
 import Button2D from "../atom/Button2D";
+import { useContext } from "react";
+import { RouteContext } from "../main/World";
 
 const HomeScene = () => {
-  const three = useThree();
+  const { setGameMode, setUrl } = useContext<any>(RouteContext.Consumer);
+
+  const onSinglePlayStart = () => {
+    console.log("singleplay start.");
+    setGameMode("singleplay");
+  };
+
+  const onMultiPlayStart = () => {
+    console.log("multiplay start.");
+    setGameMode("multiplay");
+  };
+
   return (
     <>
       {/* Lighting */}
@@ -13,29 +24,25 @@ const HomeScene = () => {
       <Text2D text="NPM SURVIVAL" top={170} fontSize={80} />
       {/* Single Game Start Button */}
       <Button2D
-        text="Single Player"
+        text="Singleplayer"
         top={400}
         bgColor="#222222"
         fontSize={30}
         width={300}
         height={50}
         opacity={0.2}
-        onPress={() => {
-          console.log("clicked!!!");
-        }}
+        onPress={onSinglePlayStart}
       />
       {/* Multiplay Game Start Button */}
       <Button2D
-        text="Multi Player"
+        text="Multiplayer"
         top={500}
         bgColor="#222222"
         fontSize={30}
         width={300}
         height={50}
         opacity={0.2}
-        onPress={() => {
-          console.log("clicked!!!");
-        }}
+        onPress={onMultiPlayStart}
       />
       {/* Settings Button */}
       <Button2D
