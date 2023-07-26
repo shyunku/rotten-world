@@ -48,12 +48,12 @@ export class Entity extends Drawable {
     this.moveSpeed = 0;
 
     this.armor = 0;
-    this.slowResist = 0;
-    this.stunResist = 0;
-    this.knockbackResist = 0;
+    this.slowResist = 0; // TODO: implement
+    this.stunResist = 0; // TODO: implement
+    this.knockbackResist = 0; // TODO: implement
 
     this.hpRegen = 0;
-    this.hpRegenRate = 0;
+    this.hpRegenRate = 0; // TODO: implement
 
     this.pos = new Vector2(0, 0);
     this.destPos = new Vector2(0, 0);
