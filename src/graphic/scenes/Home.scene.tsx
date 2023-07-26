@@ -8,17 +8,15 @@ const HomeScene = () => {
   const { setGameMode, setUrl } = useContext<any>(RouteContext);
 
   const onSinglePlayStart = () => {
-    console.log("singleplay start.");
     setGameMode("singleplay");
     setUrl("game");
-    Logger.debug("singleplay start.");
+    Logger.info("singleplay start.");
   };
 
   const onMultiPlayStart = () => {
-    console.log("multiplay start.");
     setGameMode("multiplay");
     setUrl("game");
-    Logger.debug("multiplay start.");
+    Logger.info("multiplay start.");
   };
 
   return (

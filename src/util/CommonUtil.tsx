@@ -1,4 +1,4 @@
-import uuid from "uuid";
+import * as uuid from "uuid";
 
 export function uuidv4() {
   return uuid.v4();

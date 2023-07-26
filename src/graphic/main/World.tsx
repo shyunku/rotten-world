@@ -30,10 +30,10 @@ const World = () => {
     <Suspense fallback={<div>Loading...</div>}>
       <Canvas
         camera={{
-          position: [0, 0, 1000],
+          position: [0, 0, 10000],
           zoom: 1,
           near: 0.1,
-          far: 1000,
+          far: 10000,
         }}
         linear={true}
         orthographic={true}

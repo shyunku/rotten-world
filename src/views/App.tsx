@@ -3,7 +3,12 @@ import "./App.scss";
 
 function App() {
   return (
-    <div className="App">
+    <div
+      className="App"
+      onContextMenu={(e) => {
+        e.preventDefault();
+      }}
+    >
       <World />
     </div>
   );

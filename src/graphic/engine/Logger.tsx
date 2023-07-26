@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { v4 } from "uuid";
 import Text2D from "../atom/Text2D";
 import moment from "moment";
@@ -28,9 +28,8 @@ const LOG_TYPE_COLOR = {
   [LOG_TYPE.SUCCESS]: "green",
 };
 
-export const Logger = ({ position = POSITION.TOP_RIGHT, expiresIn = 3000, maxSize = 30 }) => {
+export const Logger = ({ position = POSITION.TOP_RIGHT, expiresIn = 600000000, maxSize = 30 }) => {
   const [activeLogs, setActiveLogs] = useState<any>([]);
-  const fadeOutDuration = useMemo(() => 300, []);
   const verticalDirection = useMemo(() => (position.split("-")[0] == "top" ? 1 : -1), [position]);
 
   useEffect(() => {
@@ -40,22 +39,19 @@ export const Logger = ({ position = POSITION.TOP_RIGHT, expiresIn = 3000, maxSiz
       const maintainDuration = logData?.options?.duration ?? expiresIn;
 
       setActiveLogs((prev: any) => {
-        const log = { ...logData, id: logId, createdAt: Date.now(), duration: expiresIn };
+        const log = {
+          ...logData,
+          id: logId,
+          createdAt: Date.now(),
+          fadeInAfter: Date.now() + maintainDuration,
+          duration: expiresIn,
+        };
         let newLogs = [...prev, log];
         if (newLogs.length > maxSize) {
           newLogs = newLogs.slice(-maxSize);
         }
         return newLogs;
       });
-      setTimeout(() => {
-        const logToBeFadeOut = document.getElementById(logId);
-        if (logToBeFadeOut) {
-          logToBeFadeOut.classList.add("fade-out");
-          setTimeout(() => {
-            setActiveLogs((prev: any) => prev.filter((t: any) => t.id !== logId));
-          }, fadeOutDuration);
-        }
-      }, maintainDuration);
     };
     document.addEventListener("custom_log", listener);
     return () => {
@@ -75,6 +71,8 @@ export const Logger = ({ position = POSITION.TOP_RIGHT, expiresIn = 3000, maxSiz
               createdAt={log.createdAt}
               message={log.message}
               key={log.id}
+              duration={log.duration}
+              fadeInAfter={log.fadeInAfter}
               index={index * verticalDirection}
             />
           );
@@ -83,16 +81,35 @@ export const Logger = ({ position = POSITION.TOP_RIGHT, expiresIn = 3000, maxSiz
   );
 };
 
-const LogItem = ({ type, message = "", index = 0, createdAt }: any) => {
+const LogItem = ({ type, message = "", index = 0, createdAt, duration, fadeInAfter }: any) => {
+  const now = Date.now();
+  const remainTime = fadeInAfter + duration - now;
+  const [, updateState] = useState<any>();
+  const forceUpdate = useCallback(() => updateState({}), []);
+  let opacity = now > fadeInAfter ? Math.min(remainTime / duration, 1) : 1;
+  if (opacity < 0) opacity = 0;
+
+  useEffect(() => {
+    const c = setInterval(() => {
+      forceUpdate();
+    }, 100);
+    return () => {
+      clearInterval(c);
+    };
+  }, []);
+
   return (
     <Text2D
-      text={`${message} (${moment(createdAt).format("hh:mm:ss")}) [${type}]`}
+      text={`${message} (${moment(createdAt).format("hh:mm:ss.SSS")}) [${type}]`}
       right={18}
       top={(index + 1) * 18}
       textAlignHorizontal="right"
       textAlignVertical="top"
-      fontSize={12}
+      fontSize={13}
       color={LOG_TYPE_COLOR[type] ?? "black"}
+      opacity={opacity * 0.7}
+      strokeColor="#aaa"
+      strokeWidth={0.1}
       z={1.1}
     />
   );
@@ -116,8 +133,24 @@ const error = (message: string, options = DEFAULT_OPTIONS) => {
   addLogItem(LOG_TYPE.ERROR, message, null, options);
 };
 
-const success = (message: string, options = DEFAULT_OPTIONS) => {
-  addLogItem(LOG_TYPE.SUCCESS, message, null, options);
+const debugf = (...message: any[]) => {
+  const msg = message.map((m) => (typeof m == "string" ? m : JSON.stringify(m))).join(" ");
+  addLogItem(LOG_TYPE.DEBUG, msg, null, DEFAULT_OPTIONS);
+};
+
+const infof = (...message: any[]) => {
+  const msg = message.map((m) => (typeof m == "string" ? m : JSON.stringify(m))).join(" ");
+  addLogItem(LOG_TYPE.INFO, msg, null, DEFAULT_OPTIONS);
+};
+
+const warnf = (...message: any[]) => {
+  const msg = message.map((m) => (typeof m == "string" ? m : JSON.stringify(m))).join(" ");
+  addLogItem(LOG_TYPE.WARN, msg, null, DEFAULT_OPTIONS);
+};
+
+const errorf = (...message: any[]) => {
+  const msg = message.map((m) => (typeof m == "string" ? m : JSON.stringify(m))).join(" ");
+  addLogItem(LOG_TYPE.ERROR, msg, null, DEFAULT_OPTIONS);
 };
 
 const addLogItem = (type: any, message: string, extra = null, options: any) => {
@@ -137,5 +170,8 @@ export default {
   info,
   warn,
   error,
-  success,
+  debugf,
+  infof,
+  warnf,
+  errorf,
 };
