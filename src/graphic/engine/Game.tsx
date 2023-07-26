@@ -4,16 +4,22 @@ import { EVENT_TYPE, LAYER_TYPE } from "./Constants";
 import Event from "./Event";
 import GameEventHandler from "graphic/engine/GameEventHandler";
 import Logger from "./Logger";
+import { RootState, useThree } from "@react-three/fiber";
 
 class Game {
   private layers: Map<string, Layer<Drawable>>;
+  public three: RootState | null = null;
 
   constructor() {
     this.layers = new Map<string, Layer<Drawable>>();
   }
 
+  public setThree(three: RootState) {
+    this.three = three;
+  }
+
   public applyEvent(e: Event) {
-    Logger.debugf(`Game.applyEvent: ${e.type}`, e);
+    Logger.debugf(`Game.applyEvent: ${e.type} ${e.subEventData.type}`);
     if (e.type === EVENT_TYPE.GAME) {
       GameEventHandler(e, this);
     }

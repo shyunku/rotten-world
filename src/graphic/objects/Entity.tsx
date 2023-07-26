@@ -1,5 +1,13 @@
+import { Box } from "@react-three/drei";
+import Text2D from "graphic/atom/Text2D";
 import Drawable from "graphic/engine/Drawable";
+import Game from "graphic/engine/Game";
+import { Fragment } from "react";
 import { Vector2 } from "three";
+import { calcFraction } from "util/GameUtil";
+
+const HEALTH_WIDTH = 50;
+const HEALTH_HEIGHT = 8;
 
 export class Entity extends Drawable {
   public name: string;
@@ -21,22 +29,21 @@ export class Entity extends Drawable {
   public hpRegenRate: number;
 
   // transform
-  public pos: [number, number];
-  public destPos: [number, number];
+  public pos: Vector2;
+  public destPos: Vector2;
   public scale: [number, number];
   public direction: number;
 
-  constructor(id: string, name: string) {
-    super(id);
+  constructor(name: string) {
+    super();
 
-    this.id = id;
     this.name = name;
 
     this.level = 1;
     this.hp = 1;
     this.maxHp = 1;
     this.attackDamage = 1;
-    this.attackSpeed = 0;
+    this.attackSpeed = 1;
     this.attackRange = 0;
     this.moveSpeed = 0;
 
@@ -48,23 +55,73 @@ export class Entity extends Drawable {
     this.hpRegen = 0;
     this.hpRegenRate = 0;
 
-    this.pos = [0, 0];
-    this.destPos = [0, 0];
+    this.pos = new Vector2(0, 0);
+    this.destPos = new Vector2(0, 0);
     this.scale = [1, 1];
     this.direction = 0;
   }
 
-  public update(t: number): void {
-    if (!(this.pos[0] == this.destPos[0] && this.pos[1] == this.destPos[1])) {
-      // move
-      const dx = this.destPos[0] - this.pos[0];
-      const dy = this.destPos[1] - this.pos[1];
-      const vec = new Vector2(dx, dy);
-      vec.normalize();
-      vec.multiplyScalar(this.moveSpeed);
-      this.pos[0] += (vec.x * t) / 1000;
-      this.pos[1] += (vec.y * t) / 1000;
+  public applyDamage(damage: number): void {
+    // apply armor
+    const damageReduction = calcFraction(this.armor);
+    this.hp -= damage * (1 - damageReduction);
+    if (this.hp < 0) {
+      this.hp = 0;
     }
+  }
+
+  protected applyHealthGen(t: number): void {
+    this.hp += this.hpRegen * t;
+    if (this.hp > this.maxHp) {
+      this.hp = this.maxHp;
+    }
+  }
+
+  public update(t: number): void {
+    if (!this.pos.equals(this.destPos)) {
+      // move
+      const vec = this.destPos.clone().sub(this.pos);
+      const distance = vec.length();
+      const moveDistance = this.moveSpeed * t;
+
+      if (distance < moveDistance) {
+        this.pos.set(this.destPos.x, this.destPos.y);
+      } else {
+        vec.normalize();
+        vec.multiplyScalar(this.moveSpeed);
+        this.pos.addScaledVector(vec, t);
+      }
+    }
+
+    // health regen
+    if (this.hp < this.maxHp) {
+      this.hp += this.hpRegen * t;
+      if (this.hp > this.maxHp) {
+        this.hp = this.maxHp;
+      }
+    }
+  }
+
+  protected drawHealthBar(color: string): JSX.Element {
+    return (
+      <Fragment key={this.id}>
+        <Box args={[HEALTH_WIDTH, HEALTH_HEIGHT, 0.1]} position={[this.pos.x, this.pos.y + 20, 0]}>
+          <meshBasicMaterial color="black" />
+        </Box>
+        <Box
+          args={[HEALTH_WIDTH * (this.hp / this.maxHp), HEALTH_HEIGHT, 0.1]}
+          position={[this.pos.x - HEALTH_WIDTH / 2 + (HEALTH_WIDTH * (this.hp / this.maxHp)) / 2, this.pos.y + 20, 0]}
+        >
+          <meshBasicMaterial color={color} />
+        </Box>
+        <Text2D
+          text={`${Math.ceil(this.hp)} / ${Math.ceil(this.maxHp)}`}
+          fontSize={10}
+          x={this.pos.x}
+          y={this.pos.y + 35}
+        />
+      </Fragment>
+    );
   }
 
   public draw(): JSX.Element {

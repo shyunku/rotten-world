@@ -1,10 +1,13 @@
 import Drawable from "./Drawable";
+import Game from "./Game";
 
 abstract class Layer<T extends Drawable> {
   public gameObjects: Map<string, T>;
+  private game: Game;
 
-  constructor() {
+  constructor(game: Game) {
     this.gameObjects = new Map<string, T>();
+    this.game = game;
   }
 
   public get(id: string): T | undefined {
@@ -12,6 +15,7 @@ abstract class Layer<T extends Drawable> {
   }
 
   public add(gameObject: T) {
+    gameObject.setGame(this.game);
     this.gameObjects.set(gameObject.id, gameObject);
   }
 

@@ -10,10 +10,11 @@ import Drawable from "./Drawable";
 
 const GameEventHandler = (event: Event, g: Game) => {
   const gameEvent = event.subEventData as GameEvent;
-  Logger.debugf(`GameEventHandler: ${gameEvent.type}`, event);
+  // Logger.debugf(`GameEventHandler: ${gameEvent.type}`, event);
   switch (gameEvent.type) {
     case GAME_EVENT_TYPE.PLAYER_MOVE:
       handlePlayerMove(event, event.subEventData as GameEvent, g);
+      break;
   }
 };
 
@@ -31,6 +32,7 @@ function handlePlayerMove(event: Event, gameEvent: GameEvent, g: Game) {
   }
   if (!(player instanceof Player)) {
     Logger.warn("handlePlayerMove: player is not Player");
+    console.log(player);
     return;
   }
   player.move(data.x, data.y);

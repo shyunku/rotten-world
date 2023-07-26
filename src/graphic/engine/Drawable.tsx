@@ -1,8 +1,16 @@
+import { uuidv4 } from "util/CommonUtil";
+import Game from "./Game";
+
 abstract class Drawable {
   public id: string;
+  public game: Game | null = null;
 
-  constructor(id: string) {
-    this.id = id;
+  constructor() {
+    this.id = uuidv4();
+  }
+
+  public setGame(game: Game) {
+    this.game = game;
   }
 
   public abstract update(t: number): void;
