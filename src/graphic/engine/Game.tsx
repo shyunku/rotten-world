@@ -5,20 +5,30 @@ import Event from "./Event";
 import GameEventHandler from "graphic/engine/GameEventHandler";
 import Logger from "./Logger";
 import { RootState, useThree } from "@react-three/fiber";
+import Controller from "./Controller";
 
 class Game {
   private layers: Map<string, Layer<Drawable>>;
   public three: RootState | null = null;
+  public controller: Controller;
 
   constructor() {
     this.layers = new Map<string, Layer<Drawable>>();
+    this.controller = new Controller(this);
   }
 
   public setThree(three: RootState) {
     this.three = three;
   }
 
+  public createAndEmitGameEvent(type: string, subEventData: any) {
+    const newEvent = Event.createGameEvent(type, subEventData);
+    this.applyEvent(newEvent);
+  }
+
   public applyEvent(e: Event) {
+    // TODO :: send event to server
+    // TODO :: receive event from server and route to game
     Logger.debugf(`Game.applyEvent: ${e.type} ${e.subEventData.type}`);
     if (e.type === EVENT_TYPE.GAME) {
       GameEventHandler(e, this);

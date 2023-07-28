@@ -34,6 +34,8 @@ export class Entity extends Drawable {
   public scale: [number, number];
   public direction: number;
 
+  private moving = false;
+
   constructor(name: string) {
     super();
 
@@ -86,11 +88,15 @@ export class Entity extends Drawable {
 
       if (distance < moveDistance) {
         this.pos.set(this.destPos.x, this.destPos.y);
+        this.moving = false;
       } else {
         vec.normalize();
         vec.multiplyScalar(this.moveSpeed);
         this.pos.addScaledVector(vec, t);
+        this.moving = true;
       }
+    } else {
+      this.moving = false;
     }
 
     // health regen

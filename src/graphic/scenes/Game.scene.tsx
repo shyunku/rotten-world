@@ -12,35 +12,45 @@ import Event from "graphic/engine/Event";
 import { PlayerMoveEvent } from "graphic/events/GameEvents";
 import { GameStateLog, GameStateLogItem } from "graphic/hooks/GameStateLog";
 import { useThree } from "@react-three/fiber";
+import AttackRangeDisplayer from "graphic/main/AttackRangeDisplayer";
 
 const game = new Game();
 const enemyLayer = new EnemyLayer(game);
 const playerLayer = new PlayerLayer(game);
-const enemySpawner = new EnemySpawner(game, 30000);
+const enemySpawner = new EnemySpawner(game, 60000);
+
+const playerMe = new Player("me");
+playerMe.id = "me";
+playerMe.hp = 30000;
+playerMe.maxHp = 30000;
+playerMe.attackRange = 300;
+playerMe.hpRegen = 5;
+playerMe.armor = 700;
+playerLayer.add(playerMe);
 
 const GameScene = () => {
   const { gameMode } = useContext<any>(RouteContext);
-  const [dummy, setDummy] = useState<number>(0);
   const lastUpdateTime = useRef(Date.now());
   const three = useThree();
 
+  const [, setDummy] = useState<number>(0);
+
   useEffect(() => {
     // initialize
-    const player = new Player("me");
-    player.id = "me";
-    player.hp = 30000;
-    player.maxHp = 30000;
-    player.hpRegen = 5;
-    player.armor = 700;
-    playerLayer.add(player);
-
     game.setThree(three);
-
-    enemySpawner.start(5000);
+    enemySpawner.start(300000);
 
     game.setLayer(LAYER_TYPE.ENEMY, enemyLayer);
     game.setLayer(LAYER_TYPE.PLAYER, playerLayer);
     renderLoop();
+
+    document.addEventListener("keydown", game.controller.onDocumentKeyDown);
+    document.addEventListener("keyup", game.controller.onDocumentKeyUp);
+
+    return () => {
+      document.removeEventListener("keydown", game.controller.onDocumentKeyDown);
+      document.removeEventListener("keyup", game.controller.onDocumentKeyUp);
+    };
   }, []);
 
   const renderLoop = useCallback(() => {
@@ -56,27 +66,6 @@ const GameScene = () => {
     return () => {
       cancelAnimationFrame(animationId);
     };
-  }, []);
-
-  const emitGameEvent = useCallback((e: Event) => {
-    // emit game event
-    game.applyEvent(e);
-
-    // TODO :: send event to server
-    // TODO :: receive event from server and route to game
-  }, []);
-
-  const createAndEmitGameEvent = useCallback(
-    (type: string, subEventData: any) => {
-      const newEvent = Event.createGameEvent(type, subEventData);
-      emitGameEvent(newEvent);
-    },
-    [emitGameEvent]
-  );
-
-  // controller
-  const onMouseRightClick = useCallback((v: Vector2) => {
-    createAndEmitGameEvent(GAME_EVENT_TYPE.PLAYER_MOVE, new PlayerMoveEvent("me", v.x, v.y));
   }, []);
 
   return (
@@ -95,7 +84,12 @@ const GameScene = () => {
         ]}
       />
       {/* Ground Plane */}
-      <Ground onGroundClick={onMouseRightClick} />
+      <Ground
+        onGroundLeftClick={game.controller.onGroundLeftClick}
+        onGroundRightClick={game.controller.onGroundRightClick}
+      />
+      {/* Attack Range Displayer */}
+      {game.controller.attackMoveMode === true && <AttackRangeDisplayer playerMe={playerMe} />}
       {/* Game Renderer */}
       {game?.draw()}
     </>

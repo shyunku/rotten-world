@@ -19,4 +19,5 @@ export const EVENT_TYPE = {
 
 export const GAME_EVENT_TYPE = {
   PLAYER_MOVE: "player_move",
+  PLAYER_ATTACK_MOVE: "player_attack_move",
 };
