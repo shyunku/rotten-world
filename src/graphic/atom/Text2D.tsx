@@ -45,7 +45,7 @@ const Text2D = (props: TextProps & ConstraintProps) => {
     <Text
       position={position}
       fontSize={props.fontSize || 15}
-      color={props.color || "black"}
+      color={props.color || "white"}
       anchorX={props.textAlignHorizontal || "center"}
       anchorY={props.textAlignVertical || "middle"}
       fillOpacity={props.opacity ?? 1}

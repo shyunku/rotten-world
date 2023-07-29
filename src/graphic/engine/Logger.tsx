@@ -21,11 +21,11 @@ const POSITION = {
 };
 
 const LOG_TYPE_COLOR = {
-  [LOG_TYPE.DEBUG]: "gray",
-  [LOG_TYPE.INFO]: "blue",
-  [LOG_TYPE.WARN]: "orange",
+  [LOG_TYPE.DEBUG]: "#ccc",
+  [LOG_TYPE.INFO]: "#bbf",
+  [LOG_TYPE.WARN]: "#ffa",
   [LOG_TYPE.ERROR]: "red",
-  [LOG_TYPE.SUCCESS]: "green",
+  [LOG_TYPE.SUCCESS]: "#4f7",
 };
 
 export const Logger = ({ position = POSITION.TOP_RIGHT, expiresIn = 600000000, maxSize = 30 }) => {
@@ -107,7 +107,7 @@ const LogItem = ({ type, message = "", index = 0, createdAt, duration, fadeInAft
       textAlignVertical="top"
       fontSize={13}
       color={LOG_TYPE_COLOR[type] ?? "black"}
-      opacity={opacity * 0.7}
+      opacity={opacity * 0.5}
       strokeColor="#aaa"
       strokeWidth={0.1}
       z={1.1}

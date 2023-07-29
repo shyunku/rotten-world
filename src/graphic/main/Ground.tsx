@@ -47,7 +47,7 @@ const Ground = (props: GroundProps) => {
     <>
       <mesh ref={meshRef} onClick={onMouseLeftClick} onContextMenu={onMouseRightClick}>
         <planeGeometry args={[width, height]} />
-        <meshStandardMaterial color="#ddd" />
+        <meshStandardMaterial color="#853" />
       </mesh>
     </>
   );
