@@ -34,16 +34,31 @@ export class Entity extends Drawable {
 
   public level: number; // 레벨
   public exp: LimitedStat; // 경험치
+  public expGrowth: number; // 최대 경험치 한도 증가량 (레벨업 시)
+
   public expDrop: number; // 죽었을 때 주는 경험치
+  public expDropGrowth: number; // 죽었을 때 주는 경험치 증가량 (레벨업 시)
 
   public hp: LimitedStat; // 체력
-  public hpRegen: number;
+  public hpGrowth: number; // 최대 체력 증가량
+
+  public hpRegen: number; // 체력 회복량
+  public hpRegenGrowth: number; // 체력 회복량 증가량
 
   public attackDamage: Stat; // 기본 공격력
+  public attackDamageGrowth: number; // 기본 공격력 증가량 (레벨업 시)
+
   public attackSpeed: Stat; // 기본 공격 속도
+  public attackSpeedGrowth: number; // 기본 공격 속도 증가량 (레벨업 시)
+
   public attackRange: Stat; // 기본 공격 사거리
+  public attackRangeGrowth: number; // 기본 공격 사거리 증가량 (레벨업 시)
+
   public moveSpeed: Stat; // 이동 속도
-  public armor: Stat;
+  public moveSpeedGrowth: number; // 이동 속도 증가량 (레벨업 시)
+
+  public armor: Stat; // 방어력
+  public armorGrowth: number; // 방어력 증가량 (레벨업 시)
 
   public slowResist: number;
   public stunResist: number;
@@ -60,6 +75,7 @@ export class Entity extends Drawable {
   public nextAttackTime: number;
   public attackingTarget: Entity | null;
   public attackMoving = false;
+  public attackIdle = true; // 공격 쿨다운이 돌았지만 공격하고 있지 않는 상태
 
   public upgrades: Map<string, Upgrade>;
   public statManager: EntityStatManager;
@@ -71,18 +87,32 @@ export class Entity extends Drawable {
 
     this.level = 1;
     this.exp = new LimitedStat(0, 1);
+    this.expGrowth = 0;
+
     this.expDrop = 0;
+    this.expDropGrowth = 0;
 
     this.hp = new LimitedStat(1, 1);
+    this.hpGrowth = 0;
+
     this.hpRegen = 0;
+    this.hpRegenGrowth = 0;
 
     this.attackDamage = Stat.create(0);
+    this.attackDamageGrowth = 0;
+
     this.attackSpeed = Stat.create(0);
+    this.attackSpeedGrowth = 0;
+
     this.attackRange = Stat.create(0);
+    this.attackRangeGrowth = 0;
 
     this.moveSpeed = Stat.create(0);
+    this.moveSpeedGrowth = 0;
 
     this.armor = Stat.create(0);
+    this.armorGrowth = 0;
+
     this.slowResist = 0; // TODO: implement
     this.stunResist = 0; // TODO: implement
     this.knockbackResist = 0; // TODO: implement
@@ -159,9 +189,25 @@ export class Entity extends Drawable {
     }
   }
 
+  public setLevel(level: number): void {
+    if (this.level >= level) return;
+    for (let i = this.level; i < level; i++) {
+      this.levelUp();
+    }
+  }
+
   protected levelUp(): void {
     this.level++;
     this.exp.setCurrent(0);
+    this.exp.setMax(this.exp.max + this.expGrowth);
+    this.expDrop += this.expDropGrowth;
+    this.hp.setMaxAndFill(this.hp.max + this.hpGrowth);
+    this.hpRegen += this.hpRegenGrowth;
+    this.attackDamage.addExtra(this.attackDamageGrowth);
+    this.attackSpeed.addExtra(this.attackSpeedGrowth);
+    this.attackRange.addExtra(this.attackRangeGrowth);
+    this.moveSpeed.addExtra(this.moveSpeedGrowth);
+    this.armor.addExtra(this.armorGrowth);
   }
 
   public move(x: number, y: number) {
@@ -209,9 +255,21 @@ export class Entity extends Drawable {
 
   private tryAttack(): void {
     if (this.attackingTarget == null) return;
+    if (this.nextAttackTime === 0) this.nextAttackTime = Date.now();
     if (Date.now() >= this.nextAttackTime) {
-      this.nextAttackTime = Date.now() + 1000 / this.finalAttackSpeed;
-      this.attackingTarget.applyDamage(this.finalAttackDamage, this);
+      const attackCoolDown = 1000 / this.finalAttackSpeed;
+      const overflowedTime = Date.now() - this.nextAttackTime;
+      this.nextAttackTime = Date.now() + attackCoolDown;
+      let damageAdjustFactorByDelay = 1;
+
+      if (attackCoolDown < 50 && this.attackIdle === false) {
+        damageAdjustFactorByDelay = (overflowedTime + attackCoolDown) / attackCoolDown;
+      }
+
+      // 대상에게 데미지 적용
+      this.attackingTarget.applyDamage(this.finalAttackDamage * damageAdjustFactorByDelay, this);
+      this.attackIdle = false;
+
       if (this.upgrades.has(UPGRADES.RANGER_UPGRADE_INFINITE_ATTACK_SPEED_UP)) {
         const upgrade = this.upgrades.get(
           UPGRADES.RANGER_UPGRADE_INFINITE_ATTACK_SPEED_UP
@@ -233,6 +291,9 @@ export class Entity extends Drawable {
     if (this.isTargetAttackable()) {
       this.tryAttack();
     } else {
+      if (this.attackIdle === false && Date.now() >= this.nextAttackTime) {
+        this.attackIdle = true;
+      }
       if (!this.pos.equals(this.destPos)) {
         // move
         const vec = this.destPos.clone().sub(this.pos);

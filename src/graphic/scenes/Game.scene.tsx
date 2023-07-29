@@ -18,27 +18,21 @@ import Upgrade from "graphic/engine/Upgrade";
 const game = new Game();
 const enemyLayer = new EnemyLayer(game);
 const playerLayer = new PlayerLayer(game);
-const enemySpawner = new EnemySpawner(game, 60000);
+const enemySpawner = new EnemySpawner(game, 15000);
 
 const playerMe = new Player("me");
 playerMe.id = "me";
-playerMe.hp.setMaxAndFill(1250);
-playerMe.exp.setMax(100);
-playerMe.moveSpeed = Stat.create(240);
-playerMe.attackRange = Stat.create(300);
-playerMe.attackDamage = Stat.create(50);
-playerMe.attackSpeed = Stat.create(1.2);
-playerMe.armor = Stat.create(25);
-playerMe.hpRegen = 2;
 playerMe.addUpgrade(new RangerUpgradeInfiniteAttackSpeedUp());
 playerLayer.add(playerMe);
 
 const GameScene = () => {
   const { gameMode } = useContext<any>(RouteContext);
   const lastUpdateTime = useRef(Date.now());
+  const frameCount = useRef(0);
   const three = useThree();
 
   const [, setDummy] = useState<number>(0);
+  const [fps, setFps] = useState<number>(0);
 
   useEffect(() => {
     // initialize
@@ -49,12 +43,19 @@ const GameScene = () => {
     game.setLayer(LAYER_TYPE.PLAYER, playerLayer);
     renderLoop();
 
+    const fpsThread = setInterval(() => {
+      // finalize (after 1 second)
+      setFps(frameCount.current);
+      frameCount.current = 0;
+    }, 1000);
+
     document.addEventListener("keydown", game.controller.onDocumentKeyDown);
     document.addEventListener("keyup", game.controller.onDocumentKeyUp);
 
     return () => {
       document.removeEventListener("keydown", game.controller.onDocumentKeyDown);
       document.removeEventListener("keyup", game.controller.onDocumentKeyUp);
+      clearInterval(fpsThread);
     };
   }, []);
 
@@ -65,6 +66,7 @@ const GameScene = () => {
     lastUpdateTime.current = now;
     game.update(timeElapsed / 1000);
 
+    frameCount.current++;
     setDummy((prev) => prev + 1);
 
     const animationId = requestAnimationFrame(renderLoop);
@@ -81,6 +83,8 @@ const GameScene = () => {
       <GameStateLog
         logs={[
           `Game Mode: ${gameMode}`,
+          `FPS: ${fps}`,
+          ``,
           `Round: ${enemySpawner.round}`,
           `Next Round Remain Time: ${enemySpawner.nextRoundStartTime - Date.now()}ms`,
           `Spawn Interval: ${enemySpawner.spawnInterval}ms`,
@@ -93,6 +97,7 @@ const GameScene = () => {
             playerMe.attackingTarget?.name ?? "null"
           }`,
           `Player attack remain cooldown: ${Math.max(playerMe.nextAttackTime - Date.now(), 0)}ms`,
+          `Player attack idle: ${playerMe.attackIdle}`,
           ``,
           `Player HP: ${playerMe.hp.current}/${playerMe.hp.max}`,
           `Player EXP: ${playerMe.exp.current}/${playerMe.exp.max}`,

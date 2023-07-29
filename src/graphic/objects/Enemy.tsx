@@ -55,13 +55,35 @@ export class TestEnemy extends Enemy {
   constructor(name: string) {
     super(name);
 
-    this.moveSpeed = Stat.create(50);
     this.hp.setMaxAndFill(280);
+    this.moveSpeed = Stat.create(80);
     this.playerChaseCalcPeriod = 800;
-    this.attackRange = Stat.create(150);
+    this.attackRange = Stat.create(50);
     this.attackDamage = Stat.create(28);
     this.attackSpeed = Stat.create(0.8);
     this.expDrop = 25;
+  }
+}
+
+export class TestEnemyBoss extends Enemy {
+  constructor(name: string) {
+    super(name);
+
+    this.hp.setMaxAndFill(25000);
+    this.hpGrowth = 1600;
+    this.hpRegen = 7;
+    this.moveSpeed = Stat.create(65);
+    this.moveSpeedGrowth = 3;
+    this.playerChaseCalcPeriod = 800;
+    this.attackRange = Stat.create(100);
+    this.attackDamage = Stat.create(247);
+    this.attackDamageGrowth = 36;
+    this.attackSpeed = Stat.create(1.6);
+    this.attackSpeedGrowth = 0.02;
+    this.expDrop = 140;
+    this.expDropGrowth = 20;
+    this.armor = Stat.create(120);
+    this.armorGrowth = 27;
   }
 }
 
@@ -115,7 +137,7 @@ export class EnemySpawner {
       this.roundLoopId = fastInterval(() => {
         this.nextRoundStartTime = Date.now() + this.spawnInterval;
         this.round += 1;
-        this.spawnCount = this.round * 10;
+        this.spawnCount = 1;
         this.roundStartHandler();
       }, this.spawnInterval);
     }, delay);
@@ -130,10 +152,11 @@ export class EnemySpawner {
     const { size } = this.game.three as RootState;
 
     for (let i = 0; i < this.spawnCount; i++) {
-      const enemy = new TestEnemy(`enemy-${this.round}-${i}`);
+      const enemy = new TestEnemyBoss(`enemy-${this.round}-${i}`);
       const x = (Math.random() - 1 / 2) * size.width;
       const y = (Math.random() - 1 / 2) * size.height;
       enemy.pos.set(x, y);
+      enemy.setLevel(this.round);
       enemyLayer.add(enemy);
     }
   }

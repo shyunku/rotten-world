@@ -3,6 +3,7 @@ import { LAYER_TYPE } from "graphic/engine/Constants";
 import Game from "graphic/engine/Game";
 import Layer from "graphic/engine/Layer";
 import Logger from "graphic/engine/Logger";
+import Stat from "graphic/engine/Stat";
 import Upgrade from "graphic/engine/Upgrade";
 import { Entity } from "graphic/objects/Entity";
 import React, { Fragment } from "react";
@@ -11,6 +12,23 @@ export class Player extends Entity {
   constructor(name: string) {
     super(name);
 
+    // temporary
+    this.hp.setMaxAndFill(1520);
+    this.hpGrowth = 125;
+    this.hpRegen = 2;
+    this.hpRegenGrowth = 0.5;
+    this.exp.setMax(100);
+    this.expGrowth = 25;
+    this.moveSpeed = Stat.create(240);
+    this.moveSpeedGrowth = 0;
+    this.attackRange = Stat.create(300);
+    this.attackRangeGrowth = 0;
+    this.attackDamage = Stat.create(52);
+    this.attackDamageGrowth = 6;
+    this.attackSpeed = Stat.create(1.3);
+    this.attackSpeedGrowth = 0.022;
+    this.armor = Stat.create(25);
+    this.armorGrowth = 2;
     this.scale = [15, 15];
   }
 
