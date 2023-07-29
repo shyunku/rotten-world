@@ -1,7 +1,7 @@
 import { Vector2 } from "three";
 import Game from "./Game";
 import { GAME_EVENT_TYPE } from "./Constants";
-import { PlayerMoveEvent } from "graphic/events/GameEvents";
+import { PlayerAttackMoveEvent, PlayerMoveEvent } from "graphic/events/GameEvents";
 
 class Controller {
   private game: Game;
@@ -13,7 +13,7 @@ class Controller {
 
   onGroundLeftClick = (v: Vector2) => {
     if (this.attackMoveMode) {
-      this.game.createAndEmitGameEvent(GAME_EVENT_TYPE.PLAYER_ATTACK_MOVE, new PlayerMoveEvent("me", v.x, v.y));
+      this.game.createAndEmitGameEvent(GAME_EVENT_TYPE.PLAYER_ATTACK_MOVE, new PlayerAttackMoveEvent("me", v.x, v.y));
     }
     this.attackMoveMode = false;
   };

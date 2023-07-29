@@ -15,17 +15,33 @@ const GameEventHandler = (event: Event, g: Game) => {
     case GAME_EVENT_TYPE.PLAYER_MOVE:
       handlePlayerMove(event, event.subEventData as GameEvent, g);
       break;
+    case GAME_EVENT_TYPE.PLAYER_ATTACK_MOVE:
+      handlePlayerAttackMove(event, event.subEventData as GameEvent, g);
+      break;
   }
 };
 
 function handlePlayerMove(event: Event, gameEvent: GameEvent, g: Game) {
   const data: PlayerMoveEvent = gameEvent.data;
+  const player = getPlayer(g, data.playerId);
+  if (!player) return;
+  player.move(data.x, data.y);
+}
+
+function handlePlayerAttackMove(event: Event, gameEvent: GameEvent, g: Game) {
+  const data: PlayerMoveEvent = gameEvent.data;
+  const player = getPlayer(g, data.playerId);
+  if (!player) return;
+  player.attackMove(data.x, data.y);
+}
+
+function getPlayer(g: Game, playerId: string): Player | undefined {
   const playerLayer: Layer<Drawable> | undefined = g.getLayer("player");
   if (!playerLayer) {
     Logger.warn("handlePlayerMove: playerLayer is undefined");
     return;
   }
-  const player: Drawable | undefined = playerLayer.get(data.playerId);
+  const player: Drawable | undefined = playerLayer.get(playerId);
   if (!player) {
     Logger.warn("handlePlayerMove: player is undefined");
     return;
@@ -35,7 +51,7 @@ function handlePlayerMove(event: Event, gameEvent: GameEvent, g: Game) {
     console.log(player);
     return;
   }
-  player.move(data.x, data.y);
+  return player;
 }
 
 export default GameEventHandler;

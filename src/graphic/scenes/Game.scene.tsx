@@ -6,13 +6,10 @@ import { EnemyLayer, EnemySpawner } from "graphic/objects/Enemy";
 import { Player, PlayerLayer } from "graphic/objects/Player";
 import { GAME_EVENT_TYPE, LAYER_TYPE } from "graphic/engine/Constants";
 import Ground from "graphic/main/Ground";
-import Logger from "graphic/engine/Logger";
-import { Vector2 } from "three";
-import Event from "graphic/engine/Event";
-import { PlayerMoveEvent } from "graphic/events/GameEvents";
 import { GameStateLog, GameStateLogItem } from "graphic/hooks/GameStateLog";
 import { useThree } from "@react-three/fiber";
 import AttackRangeDisplayer from "graphic/main/AttackRangeDisplayer";
+import ExpDisplayer from "graphic/main/ExpDisplayer";
 
 const game = new Game();
 const enemyLayer = new EnemyLayer(game);
@@ -21,11 +18,14 @@ const enemySpawner = new EnemySpawner(game, 60000);
 
 const playerMe = new Player("me");
 playerMe.id = "me";
-playerMe.hp = 30000;
-playerMe.maxHp = 30000;
+playerMe.hp = 1250;
+playerMe.maxHp = 1250;
+playerMe.maxExp = 100;
 playerMe.attackRange = 300;
-playerMe.hpRegen = 5;
-playerMe.armor = 700;
+playerMe.attackDamage = 50;
+playerMe.attackSpeed = 1.2;
+playerMe.hpRegen = 2;
+playerMe.armor = 25;
 playerLayer.add(playerMe);
 
 const GameScene = () => {
@@ -38,7 +38,7 @@ const GameScene = () => {
   useEffect(() => {
     // initialize
     game.setThree(three);
-    enemySpawner.start(300000);
+    enemySpawner.start(5000);
 
     game.setLayer(LAYER_TYPE.ENEMY, enemyLayer);
     game.setLayer(LAYER_TYPE.PLAYER, playerLayer);
@@ -81,6 +81,13 @@ const GameScene = () => {
           `Spawn Interval: ${enemySpawner.spawnInterval}ms`,
           `Spawn Count: ${enemySpawner.spawnCount}`,
           `Paused: ${enemySpawner.paused}`,
+          `Enemy Count: ${enemyLayer.gameObjects.size}`,
+          `Player Count: ${playerLayer.gameObjects.size}`,
+          `Player moving: ${playerMe.moving}`,
+          `Player attack target: ${playerMe.attackingTarget?.id ?? "null"} | ${
+            playerMe.attackingTarget?.name ?? "null"
+          }`,
+          `Player attack remain cooldown: ${Math.max(playerMe.nextAttackTime - Date.now(), 0)}ms`,
         ]}
       />
       {/* Ground Plane */}
@@ -90,6 +97,8 @@ const GameScene = () => {
       />
       {/* Attack Range Displayer */}
       {game.controller.attackMoveMode === true && <AttackRangeDisplayer playerMe={playerMe} />}
+      {/* Exp Displayer */}
+      <ExpDisplayer curExp={playerMe.exp} maxExp={playerMe.maxExp} height={14} bgColor="#555" fgColor="#4f4" />
       {/* Game Renderer */}
       {game?.draw()}
     </>

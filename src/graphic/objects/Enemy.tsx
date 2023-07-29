@@ -11,13 +11,11 @@ import { fastInterval } from "util/CommonUtil";
 export class Enemy extends Entity {
   public playerChaseCalcPeriod: number;
   private nextPlayerChaseCalcTime: number;
-  private nextAttackTime: number;
 
   constructor(name: string) {
     super(name);
     this.playerChaseCalcPeriod = 1000;
     this.nextPlayerChaseCalcTime = 0;
-    this.nextAttackTime = 0;
   }
 
   public update(t: number): void {
@@ -33,36 +31,11 @@ export class Enemy extends Entity {
 
   private chasePlayer() {
     // chase nearest player
-    const game = this.game as Game;
-    const playerLayer = game.getLayer(LAYER_TYPE.PLAYER) as Layer<Entity>;
-    if (playerLayer) {
-      const players = playerLayer.gameObjects as Map<string, Entity>;
-      const playersWithDist = [];
-      for (const [, player] of players) {
-        const distance = this.pos.distanceTo(player.pos);
-        playersWithDist.push({ player, distance });
-      }
-      playersWithDist.sort((a, b) => a.distance - b.distance);
-      if (playersWithDist.length > 0) {
-        const nearestPlayer = playersWithDist[0].player;
-        const dVec = nearestPlayer.pos.clone().sub(this.pos);
-        const distance = dVec.length();
-
-        if (distance <= this.attackRange) {
-          // attack player if in range
-          if (Date.now() >= this.nextAttackTime) {
-            this.nextAttackTime = Date.now() + 1000 / this.attackSpeed;
-            nearestPlayer.applyDamage(this.attackDamage);
-          }
-        } else {
-          // if player is not in range, move to player
-          if (distance > this.attackRange * 1.1) {
-            const vecToNewDest = dVec.normalize().multiplyScalar(this.attackRange * 0.9);
-            const newDestPos = nearestPlayer.pos.clone().sub(vecToNewDest);
-            this.destPos.set(newDestPos.x, newDestPos.y);
-          }
-        }
-      }
+    const nearestPlayerDistInfo = this.getNearestEntity(LAYER_TYPE.PLAYER);
+    if (nearestPlayerDistInfo) {
+      const playerPos = nearestPlayerDistInfo.entity.pos;
+      this.attackMove(playerPos.x, playerPos.y);
+      this.attackingTarget = nearestPlayerDistInfo.entity;
     }
   }
 
@@ -80,13 +53,14 @@ export class Enemy1 extends Enemy {
   constructor(name: string) {
     super(name);
 
-    this.moveSpeed = 100;
-    this.maxHp = 30;
+    this.moveSpeed = 50;
+    this.maxHp = 280;
     this.hp = this.maxHp;
     this.playerChaseCalcPeriod = 800;
-    this.attackRange = 200;
-    this.attackDamage = 12;
-    this.attackSpeed = 16.0;
+    this.attackRange = 150;
+    this.attackDamage = 28;
+    this.attackSpeed = 0.8;
+    this.expDrop = 25;
   }
 }
 
@@ -192,6 +166,6 @@ export class EnemySpawner {
 
 export class EnemyLayer extends Layer<Enemy> {
   constructor(game: Game) {
-    super(game);
+    super(game, LAYER_TYPE.ENEMY);
   }
 }
