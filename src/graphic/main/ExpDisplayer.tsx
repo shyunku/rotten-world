@@ -28,7 +28,7 @@ const ExpDisplayer = (props: ExpDisplayerProps) => {
       <Text2D
         text={`${props.curExp}/${props.maxExp}`}
         bottom={boxHeight / 2 - 2}
-        color={"#aaa"}
+        color={"#ccc"}
         z={0.2}
         fontSize={12}
       />

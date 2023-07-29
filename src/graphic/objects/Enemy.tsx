@@ -4,6 +4,7 @@ import { LAYER_TYPE } from "graphic/engine/Constants";
 import Game from "graphic/engine/Game";
 import Layer from "graphic/engine/Layer";
 import Logger from "graphic/engine/Logger";
+import Stat from "graphic/engine/Stat";
 import { Entity } from "graphic/objects/Entity";
 import { Fragment } from "react";
 import { fastInterval } from "util/CommonUtil";
@@ -25,8 +26,6 @@ export class Enemy extends Entity {
       this.nextPlayerChaseCalcTime += this.playerChaseCalcPeriod;
       this.chasePlayer();
     }
-
-    this.applyHealthGen(t);
   }
 
   private chasePlayer() {
@@ -36,6 +35,9 @@ export class Enemy extends Entity {
       const playerPos = nearestPlayerDistInfo.entity.pos;
       this.attackMove(playerPos.x, playerPos.y);
       this.attackingTarget = nearestPlayerDistInfo.entity;
+    } else {
+      this.attackingTarget = null;
+      this.stopMove();
     }
   }
 
@@ -49,44 +51,17 @@ export class Enemy extends Entity {
   }
 }
 
-export class Enemy1 extends Enemy {
+export class TestEnemy extends Enemy {
   constructor(name: string) {
     super(name);
 
-    this.moveSpeed = 50;
-    this.maxHp = 280;
-    this.hp = this.maxHp;
+    this.moveSpeed = Stat.create(50);
+    this.hp.setMaxAndFill(280);
     this.playerChaseCalcPeriod = 800;
-    this.attackRange = 150;
-    this.attackDamage = 28;
-    this.attackSpeed = 0.8;
+    this.attackRange = Stat.create(150);
+    this.attackDamage = Stat.create(28);
+    this.attackSpeed = Stat.create(0.8);
     this.expDrop = 25;
-  }
-}
-
-export class Enemy2 extends Enemy {
-  constructor(name: string) {
-    super(name);
-
-    this.moveSpeed = 100;
-    this.maxHp = 30;
-    this.hp = this.maxHp;
-    this.playerChaseCalcPeriod = 500;
-    this.attackRange = 80;
-    this.attackDamage = 5;
-  }
-}
-
-export class Enemy3 extends Enemy {
-  constructor(name: string) {
-    super(name);
-
-    this.moveSpeed = 100;
-    this.maxHp = 30;
-    this.hp = this.maxHp;
-    this.playerChaseCalcPeriod = 300;
-    this.attackRange = 80;
-    this.attackDamage = 8;
   }
 }
 
@@ -155,7 +130,7 @@ export class EnemySpawner {
     const { size } = this.game.three as RootState;
 
     for (let i = 0; i < this.spawnCount; i++) {
-      const enemy = new Enemy1(`enemy-${this.round}-${i}`);
+      const enemy = new TestEnemy(`enemy-${this.round}-${i}`);
       const x = (Math.random() - 1 / 2) * size.width;
       const y = (Math.random() - 1 / 2) * size.height;
       enemy.pos.set(x, y);

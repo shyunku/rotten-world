@@ -51,6 +51,7 @@ const Text2D = (props: TextProps & ConstraintProps) => {
       fillOpacity={props.opacity ?? 1}
       strokeColor={props.strokeColor || props.color || "black"}
       strokeWidth={props.strokeWidth ?? 0}
+      // font={}
     >
       {props.text}
     </Text>
