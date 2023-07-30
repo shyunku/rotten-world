@@ -1,6 +1,8 @@
-import { Text } from "@react-three/drei";
+import { FontData, Text, Text3D } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { ConstraintProps } from "../properties/ConstraintProps";
+import FontJson from "graphic/assets/fonts/IBM_PLEX.json";
+import { forwardRef } from "react";
 
 export interface TextProps {
   x?: number;
@@ -14,9 +16,12 @@ export interface TextProps {
   opacity?: number;
   strokeColor?: string;
   strokeWidth?: number;
+  onMouseEnter?: (e: any) => void;
+  onMouseLeave?: (e: any) => void;
+  onAfterRender?: (e: any) => void;
 }
 
-const Text2D = (props: TextProps & ConstraintProps) => {
+const Text2D = forwardRef((props: TextProps & ConstraintProps, ref) => {
   const { size } = useThree();
   const { width, height } = size;
 
@@ -40,22 +45,26 @@ const Text2D = (props: TextProps & ConstraintProps) => {
       return 0;
     })();
 
-  const position: [number, number, number] = [x, y, props.z || 0];
+  const position: [number, number, number] = [x, y, props.z ?? 0];
   return (
     <Text
+      ref={ref}
       position={position}
-      fontSize={props.fontSize || 15}
+      fontSize={props.fontSize ?? 15}
       color={props.color || "white"}
       anchorX={props.textAlignHorizontal || "center"}
       anchorY={props.textAlignVertical || "middle"}
       fillOpacity={props.opacity ?? 1}
       strokeColor={props.strokeColor || props.color || "black"}
       strokeWidth={props.strokeWidth ?? 0}
-      // font={}
+      font={"/assets/fonts/IBMPlexSansKR-Regular.ttf"}
+      onPointerEnter={props.onMouseEnter}
+      onPointerLeave={props.onMouseLeave}
+      onAfterRender={props.onAfterRender}
     >
       {props.text}
     </Text>
   );
-};
+});
 
 export default Text2D;

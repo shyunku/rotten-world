@@ -1,9 +1,7 @@
-export const OBJECT_DIRECTION = {
-  UP: "up",
-  DOWN: "down",
-  LEFT: "left",
-  RIGHT: "right",
-};
+export enum OBJECT_DIRECTION {
+  LEFT,
+  RIGHT,
+}
 
 export const LAYER_TYPE = {
   ENEMY: "enemy",

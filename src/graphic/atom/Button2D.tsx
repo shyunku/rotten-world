@@ -1,7 +1,8 @@
 import { Text, RoundedBox } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { ConstraintProps } from "../properties/ConstraintProps";
+import { ConstraintProps, CoordinateProps } from "../properties/ConstraintProps";
 import { useEffect, useRef, useState } from "react";
+import Text2D from "./Text2D";
 
 interface ButtonProps {
   z?: number;
@@ -20,13 +21,16 @@ interface ButtonProps {
   onPress?: () => void;
 }
 
-const Button2D = (props: ButtonProps & ConstraintProps) => {
+const Button2D = (props: ButtonProps & ConstraintProps & CoordinateProps) => {
   const { size } = useThree();
   const [textRenderEnded, setTextRenderEnded] = useState(false);
   const [textWidth, setTextWidth] = useState(0);
   const [textHeight, setTextHeight] = useState(0);
   const { width, height } = size;
   const meshRef = useRef<any>();
+
+  const paddingHorizontal = props.paddingHorizontal ?? 20;
+  const paddingVertical = props.paddingVertical ?? 20;
 
   const onAfterTextRender = () => {
     if (meshRef.current) {
@@ -41,6 +45,7 @@ const Button2D = (props: ButtonProps & ConstraintProps) => {
   };
 
   const x = (() => {
+    if (props.x != null) return props.x;
     if (props.left != null && props.right != null) return (width * props.left) / (props.left + props.right) - width / 2;
     if (props.left != null) return props.left - width / 2;
     if (props.right != null) return width / 2 - props.right;
@@ -48,6 +53,7 @@ const Button2D = (props: ButtonProps & ConstraintProps) => {
   })();
 
   const y = (() => {
+    if (props.y != null) return props.y;
     if (props.top != null && props.bottom != null)
       return (height * props.top) / (props.top + props.bottom) - height / 2;
     if (props.top != null) return height / 2 - props.top;
@@ -60,10 +66,7 @@ const Button2D = (props: ButtonProps & ConstraintProps) => {
     <>
       <mesh position={position} scale={1.1} onClick={props.onPress}>
         <planeGeometry
-          args={[
-            props.width ?? textWidth + (props.paddingHorizontal ?? 20),
-            props.height ?? textHeight + (props.paddingVertical ?? 20),
-          ]}
+          args={[props.width ?? textWidth + paddingHorizontal, props.height ?? textHeight + paddingVertical]}
         />
         <meshStandardMaterial
           attach={"material"}
@@ -72,15 +75,16 @@ const Button2D = (props: ButtonProps & ConstraintProps) => {
           transparent
         />
       </mesh>
-      <Text
+      <Text2D
         ref={meshRef}
-        position={position}
+        x={x ?? 0}
+        y={y ?? 0}
+        z={props.z ?? 0}
         fontSize={props.fontSize || 15}
         color={props.color || "black"}
+        text={props.text}
         onAfterRender={textRenderEnded ? () => {} : onAfterTextRender}
-      >
-        {props.text}
-      </Text>
+      />
     </>
   );
 };

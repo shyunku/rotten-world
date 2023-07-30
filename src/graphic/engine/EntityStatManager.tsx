@@ -33,7 +33,7 @@ class EntityStatManager {
   }
 
   public get moveSpeed(): number {
-    return this.entity.moveSpeed.get();
+    return this.entity.moveSpeed.get() * (this.entity.isFeared() ? 0.5 : 1);
   }
 
   public get armor(): number {

@@ -27,8 +27,13 @@ export class Player extends Entity {
     this.attackDamageGrowth = 6;
     this.attackSpeed = Stat.create(1.3);
     this.attackSpeedGrowth = 0.022;
+    this.criticalChance = 0.15;
+    this.vampirism = 0.02;
+    this.armorPenetration = 15;
+    this.armorPenetrationRate = 0.32;
     this.armor = Stat.create(25);
     this.armorGrowth = 2;
+    this.fearResist = 35;
     this.scale = [15, 15];
   }
 
@@ -53,7 +58,7 @@ export class Player extends Entity {
           <circleGeometry args={[this.scale[0], 32]} />
           <meshBasicMaterial color="#77a" />
         </mesh>
-        <Text2D text={`${this.name} (Lv.${this.level})`} x={this.pos.x} y={this.pos.y + 50} fontSize={10} />
+        <Text2D text={`${this.name} (Lv.${this.level})`} x={this.pos.x} y={this.pos.y + 55} fontSize={11} />
       </Fragment>
     );
   }

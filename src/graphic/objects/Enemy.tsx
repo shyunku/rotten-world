@@ -1,6 +1,7 @@
 import { RootState, useThree } from "@react-three/fiber";
+import Image2D from "graphic/atom/Image2D";
 import Text2D from "graphic/atom/Text2D";
-import { LAYER_TYPE } from "graphic/engine/Constants";
+import { LAYER_TYPE, OBJECT_DIRECTION } from "graphic/engine/Constants";
 import Game from "graphic/engine/Game";
 import Layer from "graphic/engine/Layer";
 import Logger from "graphic/engine/Logger";
@@ -8,15 +9,19 @@ import Stat from "graphic/engine/Stat";
 import { Entity } from "graphic/objects/Entity";
 import { Fragment } from "react";
 import { fastInterval } from "util/CommonUtil";
+import TestZombieImg from "graphic/assets/test/test_zombie.png";
 
 export class Enemy extends Entity {
   public playerChaseCalcPeriod: number;
   private nextPlayerChaseCalcTime: number;
+  // 대형 몬스터
+  public isLarge: boolean;
 
   constructor(name: string) {
     super(name);
     this.playerChaseCalcPeriod = 1000;
     this.nextPlayerChaseCalcTime = 0;
+    this.isLarge = false;
   }
 
   public update(t: number): void {
@@ -44,8 +49,15 @@ export class Enemy extends Entity {
   public draw(): JSX.Element {
     return (
       <Fragment key={this.id}>
-        {this.drawHealthBar("#ff2222")}
-        <Text2D text={this.name} x={this.pos.x} y={this.pos.y} fontSize={10} />
+        {!this.hp.isFull() && this.drawHealthBar("#ff2222")}
+        {/* <Text2D text={this.name} x={this.pos.x} y={this.pos.y} fontSize={10} /> */}
+        <Image2D
+          src={TestZombieImg}
+          x={this.pos.x}
+          y={this.pos.y}
+          scale={2}
+          horizontalReverse={this.direction === OBJECT_DIRECTION.RIGHT}
+        />
       </Fragment>
     );
   }
@@ -58,10 +70,11 @@ export class TestEnemy extends Enemy {
     this.hp.setMaxAndFill(280);
     this.moveSpeed = Stat.create(80);
     this.playerChaseCalcPeriod = 800;
-    this.attackRange = Stat.create(50);
-    this.attackDamage = Stat.create(28);
-    this.attackSpeed = Stat.create(0.8);
+    this.attackRange = Stat.create(30);
+    this.attackDamage = Stat.create(42);
+    this.attackSpeed = Stat.create(0.6);
     this.expDrop = 25;
+    this.scale = [10, 10];
   }
 }
 
@@ -137,7 +150,7 @@ export class EnemySpawner {
       this.roundLoopId = fastInterval(() => {
         this.nextRoundStartTime = Date.now() + this.spawnInterval;
         this.round += 1;
-        this.spawnCount = 1;
+        this.spawnCount = Math.floor(this.round * 15);
         this.roundStartHandler();
       }, this.spawnInterval);
     }, delay);
@@ -152,7 +165,7 @@ export class EnemySpawner {
     const { size } = this.game.three as RootState;
 
     for (let i = 0; i < this.spawnCount; i++) {
-      const enemy = new TestEnemyBoss(`enemy-${this.round}-${i}`);
+      const enemy = new TestEnemy(`enemy-${this.round}-${i}`);
       const x = (Math.random() - 1 / 2) * size.width;
       const y = (Math.random() - 1 / 2) * size.height;
       enemy.pos.set(x, y);

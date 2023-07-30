@@ -5,4 +5,9 @@ export interface ConstraintProps {
   right?: number;
 }
 
+export interface CoordinateProps {
+  x?: number;
+  y?: number;
+}
+
 export default {};

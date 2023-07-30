@@ -29,6 +29,10 @@ class LimitedStat {
     return this.current === this.max;
   }
 
+  public get rate(): number {
+    return this.current / this.max;
+  }
+
   // return overflowed value
   public add(value: number): number {
     this.current += value;

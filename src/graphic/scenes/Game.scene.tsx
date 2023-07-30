@@ -12,22 +12,25 @@ import AttackRangeDisplayer from "graphic/main/AttackRangeDisplayer";
 import ExpDisplayer from "graphic/main/ExpDisplayer";
 import Stat from "graphic/engine/Stat";
 import { calcFraction } from "util/GameUtil";
-import { RangerUpgradeInfiniteAttackSpeedUp } from "graphic/engine/upgrades/RangerUpgrades";
+import { RangerUpgradeDamageUp, RangerUpgradeInfiniteAttackSpeedUp } from "graphic/engine/upgrades/RangerUpgrades";
 import Upgrade from "graphic/engine/Upgrade";
+import StatDisplayer from "graphic/main/StatDisplayer";
 
 const game = new Game();
 const enemyLayer = new EnemyLayer(game);
 const playerLayer = new PlayerLayer(game);
-const enemySpawner = new EnemySpawner(game, 15000);
+const enemySpawner = new EnemySpawner(game, 60000);
 
 const playerMe = new Player("me");
 playerMe.id = "me";
+playerMe.addUpgrade(new RangerUpgradeDamageUp());
 playerMe.addUpgrade(new RangerUpgradeInfiniteAttackSpeedUp());
 playerLayer.add(playerMe);
 
 const GameScene = () => {
   const { gameMode } = useContext<any>(RouteContext);
   const lastUpdateTime = useRef(Date.now());
+  const dt = useRef(0);
   const frameCount = useRef(0);
   const three = useThree();
 
@@ -65,6 +68,7 @@ const GameScene = () => {
     const timeElapsed = now - lastUpdateTime.current;
     lastUpdateTime.current = now;
     game.update(timeElapsed / 1000);
+    dt.current = timeElapsed / 1000;
 
     frameCount.current++;
     setDummy((prev) => prev + 1);
@@ -74,6 +78,8 @@ const GameScene = () => {
       cancelAnimationFrame(animationId);
     };
   }, []);
+
+  console.log();
 
   return (
     <>
@@ -99,18 +105,11 @@ const GameScene = () => {
           `Player attack remain cooldown: ${Math.max(playerMe.nextAttackTime - Date.now(), 0)}ms`,
           `Player attack idle: ${playerMe.attackIdle}`,
           ``,
-          `Player HP: ${playerMe.hp.current}/${playerMe.hp.max}`,
-          `Player EXP: ${playerMe.exp.current}/${playerMe.exp.max}`,
+          `Player HP: ${playerMe.hp.current.toFixed(2)}/${playerMe.hp.max}`,
           `Player Level: ${playerMe.level}`,
-          `Player Attack Damage: ${playerMe.finalAttackDamage}`,
-          `Player Attack Speed: ${playerMe.finalAttackSpeed}`,
-          `Player Attack Range: ${playerMe.finalAttackRange}`,
-          `Player Move Speed: ${playerMe.finalMoveSpeed}`,
-          `Player Armor: ${playerMe.finalArmor} (-${Math.round(calcFraction(playerMe.finalArmor) * 100)}%)`,
-          `Player HP Regen: ${playerMe.finalHpRegen}`,
-          `Player Upgrades: ${Array.from(playerMe.upgrades)
-            .map(([, upgrade]) => upgrade.getCalculatedDescription())
-            .join(", ")}`,
+          ``,
+          `Player Upgrades:`,
+          ...Array.from(playerMe.upgrades).map(([, upgrade]) => upgrade.getCalculatedDescription()),
         ]}
       />
       {/* Ground Plane */}
@@ -121,7 +120,15 @@ const GameScene = () => {
       {/* Attack Range Displayer */}
       {game.controller.attackMoveMode === true && <AttackRangeDisplayer playerMe={playerMe} />}
       {/* Exp Displayer */}
-      <ExpDisplayer curExp={playerMe.exp.current} maxExp={playerMe.exp.max} height={12} bgColor="#555" fgColor="#a4f" />
+      <ExpDisplayer
+        curExp={playerMe.exp.current}
+        maxExp={playerMe.exp.max}
+        bgColor="#555"
+        fgColor="#47d"
+        t={dt.current}
+      />
+      {/* Stat Displayer */}
+      <StatDisplayer playerMe={playerMe} />
       {/* Game Renderer */}
       {game?.draw()}
     </>
