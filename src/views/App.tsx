@@ -1,4 +1,4 @@
-import World from "../graphic/main/World";
+import World from "main/World";
 import "./App.scss";
 
 function App() {
