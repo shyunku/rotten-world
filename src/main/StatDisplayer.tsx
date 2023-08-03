@@ -20,12 +20,12 @@ import { calcFraction } from "util/GameUtil";
 import { useState } from "react";
 import { Player } from "objects/Player";
 
-const STAT_DISPLAYER_WIDTH = 300;
-const STAT_DISPLAYER_HEIGHT = 230;
-const STAT_DISPLAYER_PADDING_HORI = 25;
-const STAT_DISPLAYER_PADDING_VERT = 30;
-const STAT_DISPLAYER_ITEM_HEIGHT = 35;
-const STAT_DISPLAYER_ITEM_WIDTH = 140;
+const STAT_DISPLAYER_WIDTH = 255;
+const STAT_DISPLAYER_HEIGHT = 210;
+const STAT_DISPLAYER_PADDING_HORI = 20;
+const STAT_DISPLAYER_PADDING_VERT = 25;
+const STAT_DISPLAYER_ITEM_HEIGHT = 32;
+const STAT_DISPLAYER_ITEM_WIDTH = 120;
 const STAT_ROW_COUNT = 6;
 
 interface StatDisplayerProps {
@@ -96,7 +96,7 @@ interface StatItemProps {
   tooltip: string;
 }
 
-const StatItem = (props: StatItemProps) => {
+export const StatItem = (props: StatItemProps) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
   return (
@@ -106,17 +106,17 @@ const StatItem = (props: StatItemProps) => {
         x={props.x}
         y={props.y}
         z={3}
-        scale={1}
+        scale={0.9}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
       />
       <Text2D
-        x={props.x + 25}
+        x={props.x + 20}
         y={props.y}
         z={3}
         text={`${showTooltip ? props.tooltip : props.value}`}
         color={"white"}
-        fontSize={19}
+        fontSize={15}
         textAlignHorizontal="left"
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}

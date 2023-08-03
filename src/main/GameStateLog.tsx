@@ -11,6 +11,7 @@ export const GameStateLogItem = ({ text, top, left }: any) => {
       textAlignVertical="top"
       fontSize={12}
       color="#ddd"
+      opacity={0.5}
     />
   );
 };

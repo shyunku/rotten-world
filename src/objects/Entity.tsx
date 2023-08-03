@@ -15,6 +15,7 @@ import Game from "controls/Game";
 import { UPGRADES } from "system/upgrades/TooltipValues";
 import { RangerUpgradeInfiniteAttackSpeedUp } from "system/upgrades/RangerUpgrades";
 import { CONSTANTS } from "system/Constants";
+import { DamageEffect } from "./DamageEffect";
 
 const HEALTH_WIDTH = 60;
 const HEALTH_HEIGHT = 8;
@@ -88,6 +89,7 @@ export abstract class Entity extends Drawable {
   public statManager: EntityStatManager;
 
   public direction: OBJECT_DIRECTION;
+  public hovered = false;
 
   constructor(name: string) {
     super();
@@ -196,6 +198,18 @@ export abstract class Entity extends Drawable {
     return this.fearResist;
   }
 
+  /* ------------- State Getter ------------- */
+  public get isSelected(): boolean {
+    const game = this.game as Game;
+    const selectedEntity = game.selectedEntity;
+    if (selectedEntity == null) return false;
+    return selectedEntity.id === this.id;
+  }
+
+  public get isHovered(): boolean {
+    return this.hovered;
+  }
+
   /* ------------- Effect Applier ------------- */
   public addUpgrade(upgrade: Upgrade): void {
     if (!this.upgrades.has(upgrade.id)) {
@@ -207,13 +221,18 @@ export abstract class Entity extends Drawable {
   }
 
   // 데미지를 받을 때 호출
-  public applyDamage(damage: number, by: Entity): number {
+  public applyDamage(damage: number, isCritical: boolean, by: Entity): number {
     // apply armor
     const calculatedArmor = (this.armor.get() - by.armorPenetration) * (1 - this.armorPenetrationRate);
     const damageReduction = calcFraction(calculatedArmor);
     const finalDamage = damage * (1 - damageReduction);
     const originalHp = this.hp.current;
     this.hp.subtract(finalDamage);
+
+    // 데미지 효과 적용
+    const damageEffect = new DamageEffect(finalDamage, isCritical, this);
+    this.game?.addDamageEffect(damageEffect);
+
     if (this.hp.current === 0) {
       this.destroy();
       by.applyExp(this.expDrop);
@@ -343,15 +362,18 @@ export abstract class Entity extends Drawable {
     }
 
     // 대상에게 데미지 적용
-    let finalDamage = this.finalAttackDamage * damageAdjustFactorByDelay;
-    if (Math.random() < this.finalCriticalChance) {
-      // 치명타 적용 (데미지 1.5배)
-      finalDamage *= 1.5;
-    }
+    const damage = this.finalAttackDamage * damageAdjustFactorByDelay;
 
     let damageSum = 0;
     for (const target of targets) {
-      const calculatedDamage = target.applyDamage(finalDamage, this);
+      let finalDamage = damage;
+      let isCritical = false;
+      if (Math.random() < this.finalCriticalChance) {
+        // 치명타 적용 (데미지 1.5배)
+        finalDamage *= 1.5;
+        isCritical = true;
+      }
+      const calculatedDamage = target.applyDamage(finalDamage, isCritical, this);
       damageSum += calculatedDamage;
     }
 
@@ -460,5 +482,18 @@ export abstract class Entity extends Drawable {
     if (this.isAttackCoolDown === false) return;
     if (this.isFeared) return;
     this.attack(entities);
+  }
+
+  public onHover(): void {
+    this.hovered = true;
+  }
+
+  public onUnhover(): void {
+    this.hovered = false;
+  }
+
+  public onClick(): void {
+    const game = this.game as Game;
+    game.selectedEntity = this;
   }
 }

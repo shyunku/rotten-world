@@ -12,6 +12,11 @@ import Ground from "main/Ground";
 import AttackRangeDisplayer from "main/AttackRangeDisplayer";
 import StatDisplayer from "main/StatDisplayer";
 import { Tester } from "system/identities/Tester";
+import { Selection, Select, EffectComposer, Outline } from "@react-three/postprocessing";
+import { Color } from "three";
+import EntityStatDisplayer from "main/EntityStatDisplayer";
+
+const WHITE_COLOR_CODE = new Color("#ffffff").getHex();
 
 const game = new Game();
 const enemyLayer = new EnemyLayer(game);
@@ -121,8 +126,15 @@ const GameScene = () => {
       <ExpDisplayer curExp={me.exp.current} maxExp={me.exp.max} bgColor="#555" fgColor="#47d" t={dt.current} />
       {/* Stat Displayer */}
       <StatDisplayer playerMe={me} />
+      {/* Entity Stat Displayer */}
+      {game.selectedEntity && <EntityStatDisplayer entity={game.selectedEntity} />}
       {/* Game Renderer */}
-      {game?.draw()}
+      <Selection>
+        <EffectComposer multisampling={3} autoClear={false}>
+          <Outline blur visibleEdgeColor={WHITE_COLOR_CODE} edgeStrength={100} width={1000} />
+        </EffectComposer>
+        {game?.draw()}
+      </Selection>
     </>
   );
 };

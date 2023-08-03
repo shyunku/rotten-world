@@ -9,6 +9,8 @@ import Stat from "../modules/Stat";
 import Game from "controls/Game";
 import Layer from "render/Layer";
 import Logger from "modules/Logger";
+import Text2D from "atom/Text2D";
+import { Select } from "@react-three/postprocessing";
 
 export class Enemy extends Entity {
   public playerChaseCalcPeriod: number;
@@ -61,14 +63,18 @@ export class Enemy extends Entity {
     return (
       <Fragment key={this.id}>
         {!this.hp.isFull() && this.drawHealthBar("#ff2222")}
-        {/* <Text2D text={this.name} x={this.pos.x} y={this.pos.y} fontSize={10} /> */}
-        <Image2D
-          src={TestZombieImg}
-          x={this.pos.x}
-          y={this.pos.y}
-          scale={2}
-          horizontalReverse={this.direction === OBJECT_DIRECTION.RIGHT}
-        />
+        <Select enabled={this.isSelected || this.isHovered}>
+          <Image2D
+            src={TestZombieImg}
+            x={this.pos.x}
+            y={this.pos.y}
+            scale={2}
+            horizontalReverse={this.direction === OBJECT_DIRECTION.RIGHT}
+            onMouseEnter={() => this.onHover()}
+            onMouseLeave={() => this.onUnhover()}
+            onClick={() => this.onClick()}
+          />
+        </Select>
       </Fragment>
     );
   }

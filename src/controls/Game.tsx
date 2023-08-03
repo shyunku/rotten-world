@@ -6,11 +6,16 @@ import Logger from "../modules/Logger";
 import { RootState } from "@react-three/fiber";
 import Controller from "./Controller";
 import GameEventHandler from "./GameEventHandler";
+import { DamageEffect } from "objects/DamageEffect";
+import { Entity } from "objects/Entity";
 
 class Game {
   private layers: Map<string, Layer<Drawable>>;
   public three: RootState | null = null;
   public controller: Controller;
+  // damage effects
+  public damageEffects: Map<string, DamageEffect> = new Map();
+  public selectedEntity: Entity | null = null;
 
   constructor() {
     this.layers = new Map<string, Layer<Drawable>>();
@@ -41,6 +46,13 @@ class Game {
 
   public setLayer(name: string, layer: Layer<Drawable>) {
     this.layers.set(name, layer);
+  }
+
+  public addDamageEffect(damageEffect: DamageEffect) {
+    this.damageEffects.set(damageEffect.id, damageEffect);
+    setTimeout(() => {
+      this.damageEffects.delete(damageEffect.id);
+    }, damageEffect.duration);
   }
 
   public remove(object: Drawable) {
@@ -79,6 +91,8 @@ class Game {
         {this.drawLayer(LAYER_TYPE.ENEMY)}
         {/* player layer */}
         {this.drawLayer(LAYER_TYPE.PLAYER)}
+        {/* draw damage effects */}
+        {Array.from(this.damageEffects.values()).map((damageEffect) => damageEffect.draw())}
       </>
     );
   }

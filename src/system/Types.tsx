@@ -35,3 +35,11 @@ export enum UPGRADE_TIER {
   SILVER = 4,
   BRONZE = 5,
 }
+
+export enum FontWeight {
+  LIGHTER = "lighter",
+  LIGHT = "light",
+  NORMAL = "normal",
+  BOLD = "bold",
+  BOLDER = "bolder",
+}
