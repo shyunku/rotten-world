@@ -15,6 +15,7 @@ import { Tester } from "system/identities/Tester";
 import { Selection, Select, EffectComposer, Outline } from "@react-three/postprocessing";
 import { Color } from "three";
 import EntityStatDisplayer from "main/EntityStatDisplayer";
+import WaveDisplayer from "main/WaveDisplayer";
 
 const WHITE_COLOR_CODE = new Color("#ffffff").getHex();
 
@@ -81,8 +82,6 @@ const GameScene = () => {
     };
   }, []);
 
-  console.log();
-
   return (
     <>
       {/* Lighting */}
@@ -94,7 +93,6 @@ const GameScene = () => {
           `FPS: ${fps}`,
           ``,
           `Round: ${enemySpawner.round}`,
-          `Next Round Remain Time: ${enemySpawner.nextRoundStartTime - Date.now()}ms`,
           `Spawn Interval: ${enemySpawner.spawnInterval}ms`,
           `Spawn Count: ${enemySpawner.spawnCount}`,
           `Paused: ${enemySpawner.paused}`,
@@ -107,9 +105,6 @@ const GameScene = () => {
             .join(", ")}`,
           `Player attack remain cooldown: ${Math.max(me.nextAttackTime - Date.now(), 0)}ms`,
           `Player attack idle: ${me.attackIdle}`,
-          ``,
-          `Player HP: ${me.hp.current.toFixed(2)}/${me.hp.max}`,
-          `Player Level: ${me.level}`,
           ``,
           `Player Upgrades:`,
           ...Array.from(me.upgrades).map(([, upgrade]) => upgrade.getCalculatedDescription()),
@@ -126,8 +121,10 @@ const GameScene = () => {
       <ExpDisplayer curExp={me.exp.current} maxExp={me.exp.max} bgColor="#555" fgColor="#47d" t={dt.current} />
       {/* Stat Displayer */}
       <StatDisplayer playerMe={me} />
+      {/* Round time displayer */}
+      <WaveDisplayer remainTime={enemySpawner.nextRoundStartTime - Date.now()} />
       {/* Entity Stat Displayer */}
-      {game.selectedEntity && <EntityStatDisplayer entity={game.selectedEntity} />}
+      {game.selectedEntity && !game.selectedEntity.disabled && <EntityStatDisplayer entity={game.selectedEntity} />}
       {/* Game Renderer */}
       <Selection>
         <EffectComposer multisampling={3} autoClear={false}>

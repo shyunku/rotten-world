@@ -9,7 +9,6 @@ import Stat from "../modules/Stat";
 import Game from "controls/Game";
 import Layer from "render/Layer";
 import Logger from "modules/Logger";
-import Text2D from "atom/Text2D";
 import { Select } from "@react-three/postprocessing";
 
 export class Enemy extends Entity {

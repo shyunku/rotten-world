@@ -37,8 +37,10 @@ const Text2D = forwardRef((props: TextProps & ConstraintProps, ref) => {
   const x =
     props?.x ??
     (() => {
-      if (props.left != null && props.right != null)
-        return (width * props.left) / (props.left + props.right) - width / 2;
+      if (props.left != null && props.right != null) {
+        if (props.left === 0 && props.right === 0) return 0;
+        return ((width / 2) * props.left + (-width / 2) * props.right) / (props.left + props.right);
+      }
       if (props.left != null) return props.left - width / 2;
       if (props.right != null) return width / 2 - props.right;
       return 0;
@@ -47,8 +49,10 @@ const Text2D = forwardRef((props: TextProps & ConstraintProps, ref) => {
   const y =
     props?.y ??
     (() => {
-      if (props.top != null && props.bottom != null)
-        return (height * props.top) / (props.top + props.bottom) - height / 2;
+      if (props.top != null && props.bottom != null) {
+        if (props.top === 0 && props.bottom === 0) return 0;
+        return ((height / 2) * props.top + (-height / 2) * props.bottom) / (props.top + props.bottom);
+      }
       if (props.top != null) return height / 2 - props.top;
       if (props.bottom != null) return props.bottom - height / 2;
       return 0;
