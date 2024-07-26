@@ -26,6 +26,9 @@ export const EVENT_TYPE = {
 export const GAME_EVENT_TYPE = {
   PLAYER_MOVE: "player_move",
   PLAYER_ATTACK_MOVE: "player_attack_move",
+  PLAYER_MOVE_KEY_DOWN: "player_move_key_down",
+  PLAYER_MOVE_KEY_UP: "player_move_key_up",
+  PLAYER_MOVE_KEY_UPDATE: "player_move_key_update",
 };
 
 export enum UPGRADE_TIER {

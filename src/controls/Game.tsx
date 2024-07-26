@@ -16,6 +16,7 @@ class Game {
   // damage effects
   public damageEffects: Map<string, DamageEffect> = new Map();
   public selectedEntity: Entity | null = null;
+  public worldSize = { width: 2000, height: 2000 };
 
   constructor() {
     this.layers = new Map<string, Layer<Drawable>>();

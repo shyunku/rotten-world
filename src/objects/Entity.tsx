@@ -467,10 +467,10 @@ export abstract class Entity extends Drawable {
 
   // 기본 공격 시도 (플레이어 강제 공격 시도 및 자동 공격 시도)
   public tryAttack() {
-    const attackableEntities = this.collectAttackableEntities();
-    if (attackableEntities.length === 0) return;
     if (this.nextAttackTime === 0) this.nextAttackTime = Date.now();
     if (this.isAttackCoolDown === false) return;
+    const attackableEntities = this.collectAttackableEntities();
+    if (attackableEntities.length === 0) return;
     if (this.isFeared) return;
     this.attack(attackableEntities);
   }

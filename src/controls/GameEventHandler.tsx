@@ -12,14 +12,29 @@ const GameEventHandler = (event: Event, g: Game) => {
   const gameEvent = event.subEventData as GameEvent;
   // Logger.debugf(`GameEventHandler: ${gameEvent.type}`, event);
   switch (gameEvent.type) {
-    case GAME_EVENT_TYPE.PLAYER_MOVE:
-      handlePlayerMove(event, event.subEventData as GameEvent, g);
-      break;
-    case GAME_EVENT_TYPE.PLAYER_ATTACK_MOVE:
-      handlePlayerAttackMove(event, event.subEventData as GameEvent, g);
+    // case GAME_EVENT_TYPE.PLAYER_MOVE:
+    //   handlePlayerMove(event, event.subEventData as GameEvent, g);
+    //   break;
+    // case GAME_EVENT_TYPE.PLAYER_ATTACK_MOVE:
+    //   handlePlayerAttackMove(event, event.subEventData as GameEvent, g);
+    //   break;
+    case GAME_EVENT_TYPE.PLAYER_MOVE_KEY_UPDATE:
+      handlePlayerKeyMove(event, event.subEventData as GameEvent, g);
       break;
   }
 };
+
+function handlePlayerKeyMove(event: Event, gameEvent: GameEvent, g: Game) {
+  const data: PlayerMoveEvent = gameEvent.data;
+  const player = getPlayer(g, data.playerId);
+  if (!player) return;
+  console.log(data);
+  if (data.x === 0 && data.y === 0) {
+    player.stopMove();
+    return;
+  }
+  player.move(data.x * g.worldSize.width, data.y * g.worldSize.height);
+}
 
 function handlePlayerMove(event: Event, gameEvent: GameEvent, g: Game) {
   const data: PlayerMoveEvent = gameEvent.data;

@@ -19,12 +19,11 @@ export class Player extends Entity {
     super.update(t);
 
     // auto attack & attack move
-    if (this.attackMoving || !this.moving) {
-      const nearestEnemyDistInfo = this.getNearestEntity(LAYER_TYPE.ENEMY);
-      if (nearestEnemyDistInfo && nearestEnemyDistInfo.distance <= this.attackRange.get()) {
-        this.tryAttack();
-      }
-    }
+    this.tryAttack();
+    // const nearestEnemyDistInfo = this.getNearestEntity(LAYER_TYPE.ENEMY);
+    // if (nearestEnemyDistInfo && nearestEnemyDistInfo.distance <= this.attackRange.get()) {
+
+    // }
   }
 
   public draw(): JSX.Element {
