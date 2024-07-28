@@ -10,6 +10,7 @@ import Game from "controls/Game";
 import Layer from "render/Layer";
 import Logger from "modules/Logger";
 import { Select } from "@react-three/postprocessing";
+import { spawn } from "child_process";
 
 export class Enemy extends Entity {
   public playerChaseCalcPeriod: number;
@@ -29,8 +30,8 @@ export class Enemy extends Entity {
     return false;
   }
 
-  public update(t: number): void {
-    super.update(t);
+  public update(game: Game, t: number): void {
+    super.update(game, t);
 
     if (Date.now() >= this.nextPlayerChaseCalcTime) {
       this.nextPlayerChaseCalcTime += this.playerChaseCalcPeriod;
@@ -90,6 +91,7 @@ export class TestEnemy extends Enemy {
     this.attackDamage = Stat.create(42);
     this.attackSpeed = Stat.create(0.6);
     this.expDrop = 25;
+    this.expDropRate = 0.5;
     this.scale = [10, 10];
   }
 }
@@ -109,85 +111,11 @@ export class TestEnemyBoss extends Enemy {
     this.attackDamageGrowth = 36;
     this.attackSpeed = Stat.create(1.6);
     this.attackSpeedGrowth = 0.02;
-    this.expDrop = 140;
+    this.expDrop = 300;
     this.expDropGrowth = 20;
+    this.expDropRate = 1;
     this.armor = Stat.create(120);
     this.armorGrowth = 27;
-  }
-}
-
-export class EnemySpawner {
-  public nextRoundStartTime: number;
-  public round: number;
-  public spawnInterval: number;
-  public spawnCount: number;
-  public game: Game;
-
-  public roundLoopId: NodeJS.Timeout | null;
-  private delayTimeoutId: NodeJS.Timeout | null;
-
-  private remainTimeBeforeNextRound: number;
-  public paused: boolean;
-
-  constructor(game: Game, spawnInterval: number) {
-    this.nextRoundStartTime = 0;
-    this.round = 0;
-    this.spawnCount = 0;
-    this.spawnInterval = spawnInterval;
-    this.game = game;
-    this.roundLoopId = null;
-    this.delayTimeoutId = null;
-    this.remainTimeBeforeNextRound = 0;
-    this.paused = true;
-  }
-
-  public start(startDelay: number) {
-    this.round = 0;
-
-    this.resume(startDelay);
-  }
-
-  public pause() {
-    this.remainTimeBeforeNextRound = this.nextRoundStartTime - Date.now();
-    this.nextRoundStartTime = 0;
-    this.paused = true;
-    clearInterval(this.roundLoopId as NodeJS.Timeout);
-    clearTimeout(this.delayTimeoutId as NodeJS.Timeout);
-  }
-
-  public resume(startDelay: number) {
-    this.remainTimeBeforeNextRound = 0;
-    const delay = this.round === 0 ? startDelay : this.remainTimeBeforeNextRound + startDelay;
-
-    this.nextRoundStartTime = Date.now() + delay;
-    this.paused = false;
-
-    this.delayTimeoutId = setTimeout(() => {
-      this.roundLoopId = fastInterval(() => {
-        this.nextRoundStartTime = Date.now() + this.spawnInterval;
-        this.round += 1;
-        this.spawnCount = Math.floor(this.round * 15);
-        this.roundStartHandler();
-      }, this.spawnInterval);
-    }, delay);
-  }
-
-  private roundStartHandler() {
-    const enemyLayer = this.game.getLayer(LAYER_TYPE.ENEMY) as Layer<Enemy>;
-    if (!enemyLayer) {
-      Logger.error("EnemySpawner.roundStartHandler: enemyLayer is null");
-    }
-
-    const { size } = this.game.three as RootState;
-
-    for (let i = 0; i < this.spawnCount; i++) {
-      const enemy = new TestEnemy(`enemy-${this.round}-${i}`);
-      const x = (Math.random() - 1 / 2) * size.width;
-      const y = (Math.random() - 1 / 2) * size.height;
-      enemy.pos.set(x, y);
-      enemy.setLevel(this.round);
-      enemyLayer.add(enemy);
-    }
   }
 }
 

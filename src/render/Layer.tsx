@@ -30,7 +30,7 @@ abstract class Layer<T extends Drawable> {
 
   public update(t: number): void {
     for (const [, gameObject] of this.gameObjects) {
-      gameObject.update(t);
+      gameObject.update(this.game, t);
     }
   }
 

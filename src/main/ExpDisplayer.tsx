@@ -19,7 +19,7 @@ const ExpDisplayer = (props: ExpDisplayerProps) => {
   const { width, height } = size;
   const topY = EXP_DISPLAYER_HEIGHT - height / 2;
 
-  const { value, fixed } = useAnimatedNumberDisplay({ value: props.curExp, asr: 0.6, t: props.t });
+  const { value, fixed } = useAnimatedNumberDisplay({ value: props.curExp, asr: 0.99, t: props.t });
 
   return (
     <>

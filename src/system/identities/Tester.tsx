@@ -7,19 +7,19 @@ export class Tester extends Player {
   constructor(name: string) {
     super(name, PLAYER_IDENTITY.TESTER);
 
-    this.hp.setMaxAndFill(1000);
+    this.hp.setMaxAndFill(10000);
     this.hpGrowth = 125;
     this.hpRegen = 2;
     this.hpRegenGrowth = 0.5;
     this.exp.setMax(100);
     this.expGrowth = 25;
-    this.moveSpeed = Stat.create(120);
+    this.moveSpeed = Stat.create(300);
     this.moveSpeedGrowth = 0;
-    this.attackRange = Stat.create(150);
+    this.attackRange = Stat.create(300);
     this.attackRangeGrowth = 0;
-    this.attackDamage = Stat.create(10);
+    this.attackDamage = Stat.create(100);
     this.attackDamageGrowth = 6;
-    this.attackSpeed = Stat.create(0.5);
+    this.attackSpeed = Stat.create(1.5);
     this.attackSpeedGrowth = 0.022;
     this.criticalChance = 0.05;
     this.vampirism = 0.01;

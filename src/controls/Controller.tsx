@@ -19,8 +19,6 @@ class Controller {
       const aPressed = this.keyboard.isPressed("a");
       const dPressed = this.keyboard.isPressed("d");
 
-      console.log(wPressed, sPressed, aPressed, dPressed);
-
       const moveVector = new Vector2();
       if (wPressed) moveVector.add(new Vector2(0, 1));
       if (sPressed) moveVector.add(new Vector2(0, -1));

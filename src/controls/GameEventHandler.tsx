@@ -28,7 +28,6 @@ function handlePlayerKeyMove(event: Event, gameEvent: GameEvent, g: Game) {
   const data: PlayerMoveEvent = gameEvent.data;
   const player = getPlayer(g, data.playerId);
   if (!player) return;
-  console.log(data);
   if (data.x === 0 && data.y === 0) {
     player.stopMove();
     return;

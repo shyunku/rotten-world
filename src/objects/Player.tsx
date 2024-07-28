@@ -13,10 +13,13 @@ export class Player extends Entity {
   constructor(name: string, identity: PLAYER_IDENTITY) {
     super(name);
     this.identity = identity;
+
+    this.canGetExp = true;
+    this.expMagnetic = 150;
   }
 
-  public update(t: number): void {
-    super.update(t);
+  public update(game: Game, t: number): void {
+    super.update(game, t);
 
     // auto attack & attack move
     this.tryAttack();

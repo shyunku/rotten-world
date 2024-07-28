@@ -23,7 +23,7 @@ abstract class Drawable {
     }
   }
 
-  public abstract update(t: number): void;
+  public abstract update(game: Game, t: number): void;
   public abstract draw(): JSX.Element;
 }
 

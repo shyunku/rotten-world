@@ -21,3 +21,15 @@ export class PlayerAttackMoveEvent {
     this.y = y;
   }
 }
+
+export class ExpDropEvent {
+  public x: number;
+  public y: number;
+  public exp: number;
+
+  constructor(x: number, y: number, exp: number) {
+    this.x = x;
+    this.y = y;
+    this.exp = exp;
+  }
+}

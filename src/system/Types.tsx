@@ -16,6 +16,7 @@ export enum LAYER_TYPE {
   ITEM = "item",
   PLAYER = "player",
   TILE = "tile",
+  EXP_BALL = "exp_ball",
   BACKGROUND = "background",
 }
 
@@ -29,6 +30,7 @@ export const GAME_EVENT_TYPE = {
   PLAYER_MOVE_KEY_DOWN: "player_move_key_down",
   PLAYER_MOVE_KEY_UP: "player_move_key_up",
   PLAYER_MOVE_KEY_UPDATE: "player_move_key_update",
+  EXP_DROP: "exp_drop",
 };
 
 export enum UPGRADE_TIER {

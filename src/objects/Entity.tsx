@@ -10,12 +10,13 @@ import LimitedStat from "../modules/LimitedStat";
 import Stat from "modules/Stat";
 import Upgrade from "system/Upgrade";
 import EntityStatManager from "./EntityStatManager";
-import { OBJECT_DIRECTION } from "system/Types";
+import { LAYER_TYPE, OBJECT_DIRECTION } from "system/Types";
 import Game from "controls/Game";
 import { UPGRADES } from "system/upgrades/TooltipValues";
 import { RangerUpgradeInfiniteAttackSpeedUp } from "system/upgrades/RangerUpgrades";
 import { CONSTANTS } from "system/Constants";
 import { DamageEffect } from "./DamageEffect";
+import { ExpBall } from "./ExpBall";
 
 const HEALTH_WIDTH = 60;
 const HEALTH_HEIGHT = 8;
@@ -39,6 +40,9 @@ export abstract class Entity extends Drawable {
 
   public expDrop: number; // 죽었을 때 주는 경험치
   public expDropGrowth: number; // 죽었을 때 주는 경험치 증가량 (레벨업 시)
+  public expDropRate: number; // 경험치 드랍 확률
+  public canGetExp: boolean; // 경험치 획득 가능 여부
+  public expMagnetic: number; // 경험치 자석 범위
 
   public hp: LimitedStat; // 체력
   public hpGrowth: number; // 최대 체력 증가량
@@ -102,6 +106,10 @@ export abstract class Entity extends Drawable {
 
     this.expDrop = 0;
     this.expDropGrowth = 0;
+    this.expDropRate = 0;
+
+    this.canGetExp = false;
+    this.expMagnetic = 0;
 
     this.hp = new LimitedStat(1, 1);
     this.hpGrowth = 0;
@@ -235,7 +243,13 @@ export abstract class Entity extends Drawable {
 
     if (this.hp.current === 0) {
       this.destroy();
-      by.applyExp(this.expDrop);
+      // by.applyExp(this.expDrop);
+
+      // 경험치 드랍 (확률)
+      if (Math.random() < this.expDropRate) {
+        this.game?.dropExp(this.pos.x, this.pos.y, this.expDrop);
+      }
+
       return originalHp;
     }
     // 두려움 증가 (깎인 체력%의 N%)
@@ -390,7 +404,7 @@ export abstract class Entity extends Drawable {
     }
   }
 
-  public update(t: number): void {
+  public update(game: Game, t: number): void {
     this.moving = false;
 
     if (this.attackIdle === false && Date.now() >= this.nextAttackTime) {
@@ -429,6 +443,19 @@ export abstract class Entity extends Drawable {
 
     // fear regen
     this.applyFearRegen(t);
+
+    // attract exp balls
+    const expBalls = game.getLayer(LAYER_TYPE.EXP_BALL)?.gameObjects;
+    if (expBalls) {
+      for (const [, expBallRaw] of expBalls) {
+        const expBall = expBallRaw as ExpBall;
+        if (expBall.pos.distanceTo(this.pos) < this.expMagnetic) {
+          expBall.attractBy(this);
+        } else {
+          expBall.unAttackedBy(this);
+        }
+      }
+    }
   }
 
   protected drawHealthBar(color: string): JSX.Element {

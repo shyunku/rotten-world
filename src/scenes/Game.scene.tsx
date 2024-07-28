@@ -2,7 +2,7 @@ import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { RouteContext } from "../main/World";
 import { useThree } from "@react-three/fiber";
 import Game from "controls/Game";
-import { EnemyLayer, EnemySpawner } from "objects/Enemy";
+import { EnemyLayer } from "objects/Enemy";
 import { Player, PlayerLayer } from "objects/Player";
 import { RangerUpgradeDamageUp, RangerUpgradeInfiniteAttackSpeedUp } from "system/upgrades/RangerUpgrades";
 import { LAYER_TYPE } from "system/Types";
@@ -16,13 +16,16 @@ import { Selection, Select, EffectComposer, Outline } from "@react-three/postpro
 import { Color } from "three";
 import EntityStatDisplayer from "main/EntityStatDisplayer";
 import WaveDisplayer from "main/WaveDisplayer";
+import { ExpBallLayer } from "objects/ExpBall";
+import TestEnemySpawner from "system/spawners/TestEnemySpawner";
 
 const WHITE_COLOR_CODE = new Color("#ffffff").getHex();
 
 const game = new Game();
 const enemyLayer = new EnemyLayer(game);
 const playerLayer = new PlayerLayer(game);
-const enemySpawner = new EnemySpawner(game, 60000);
+const expBallLayer = new ExpBallLayer(game);
+const enemySpawner = new TestEnemySpawner(game);
 
 const me = new Tester("me");
 me.id = "me";
@@ -43,10 +46,11 @@ const GameScene = () => {
   useEffect(() => {
     // initialize
     game.setThree(three);
-    enemySpawner.start(5000);
-
+    game.setEnemySpawner(enemySpawner);
     game.setLayer(LAYER_TYPE.ENEMY, enemyLayer);
     game.setLayer(LAYER_TYPE.PLAYER, playerLayer);
+    game.setLayer(LAYER_TYPE.EXP_BALL, expBallLayer);
+    game.start();
     renderLoop();
 
     const fpsThread = setInterval(() => {
@@ -92,8 +96,6 @@ const GameScene = () => {
           `Game Mode: ${gameMode}`,
           `FPS: ${fps}`,
           ``,
-          `Round: ${enemySpawner.round}`,
-          `Spawn Interval: ${enemySpawner.spawnInterval}ms`,
           `Spawn Count: ${enemySpawner.spawnCount}`,
           `Paused: ${enemySpawner.paused}`,
           `Enemy Count: ${enemyLayer.gameObjects.size}`,
@@ -122,7 +124,7 @@ const GameScene = () => {
       {/* Stat Displayer */}
       <StatDisplayer playerMe={me} />
       {/* Round time displayer */}
-      <WaveDisplayer remainTime={enemySpawner.nextRoundStartTime - Date.now()} />
+      <WaveDisplayer remainTime={game.timer} />
       {/* Entity Stat Displayer */}
       {game.selectedEntity && !game.selectedEntity.disabled && <EntityStatDisplayer entity={game.selectedEntity} />}
       {/* Game Renderer */}
